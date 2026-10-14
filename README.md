@@ -1,8 +1,8 @@
 # Bevy GeoTilemap
 
-GeoTilemap crate for the [bevy game engine](https://bevy.org/) to render slippy tile maps.
+GeoTilemap crate for the [Bevy game-engine](https://bevy.org/) to render slippy tile maps.
 
-![](assets/screenshot.png)
+![](assets/demo.gif)
 
 ## Basic usage
 

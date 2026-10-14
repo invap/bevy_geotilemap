@@ -2,11 +2,14 @@
 name = "bevy_geotilemap"
 version = "0.1.0"
 edition = "2024"
+description = "GeoTilemap crate for the Bevy game-engine to render slippy tile maps."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/invap/bevy_geotilemap"
+readme = "README.md"
 
 [dependencies]
 bevy = { version = "0.20", default-features = false, features = [
     "2d",
-    "ui",
     "jpeg",
     "https",
     "http",
@@ -19,7 +22,7 @@ controls = []
 
 [dev-dependencies]
 arboard = "3.6.1"
-bevy = { version = "0.20", features = ["debug"] }
+bevy = { version = "0.20", features = ["debug", "ui"] }
 mockall = "0.14.0"
 rstest = "0.26.1"
 urlencoding = "2.1.3"
