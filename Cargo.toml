@@ -1,0 +1,74 @@
+[package]
+name = "bevy_geotilemap"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bevy = { version = "0.20", default-features = false, features = [
+    "2d",
+    "ui",
+    "jpeg",
+    "https",
+    "http",
+] }
+
+[features]
+default = []
+markers = []
+controls = []
+
+[dev-dependencies]
+arboard = "3.6.1"
+bevy = { version = "0.20", features = ["debug"] }
+mockall = "0.14.0"
+rstest = "0.26.1"
+urlencoding = "2.1.3"
+webbrowser = "1.2.1"
+
+[[example]]
+name = "basic_layout"
+required-features = ["controls"]
+
+[[example]]
+name = "multilayer"
+required-features = ["controls"]
+
+[[example]]
+name = "block_map"
+required-features = ["controls"]
+
+[[example]]
+name = "change_theme"
+required-features = ["controls"]
+
+[[example]]
+name = "multiple_maps"
+required-features = ["controls"]
+
+[[example]]
+name = "place_marker"
+required-features = ["controls", "markers"]
+
+[[example]]
+name = "relative_marker"
+required-features = ["controls", "markers"]
+
+[[example]]
+name = "share_location_whatsapp"
+required-features = ["controls", "markers"]
+
+[[example]]
+name = "static_marker"
+required-features = ["controls", "markers"]
+
+[[example]]
+name = "region_zoom"
+required-features = ["controls"]
+
+[[example]]
+name = "transform_map"
+required-features = []
+
+[[example]]
+name = "ui_layout"
+required-features = ["controls"]
