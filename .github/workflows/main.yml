@@ -1,0 +1,221 @@
+name: Main
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - ".gitignore"
+      - ".github/dependabot.yml"
+      - "deny.toml"
+  pull_request:
+    paths-ignore:
+      - ".gitignore"
+      - ".github/dependabot.yml"
+      - "deny.toml"
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  typos:
+    name: Typos
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v7
+
+      - name: Check for typos
+        uses: crate-ci/typos@v1.50.3
+
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v7
+
+      - name: Cache crates
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install Taplo
+        run: cargo install --locked taplo-cli
+
+      - name: Check formatting
+        run: |
+          cargo fmt --all --check
+          taplo fmt --check
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v7
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Cache crates
+        uses: Swatinem/rust-cache@v2
+
+      - name: Run Clippy
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+      - name: Check docs
+        run: |
+          cargo rustdoc --all-features -- -D warnings
+          cargo rustdoc -p bevy_replicon_example_backend -- -D warnings
+
+  feature-combinations:
+    name: Feature combinations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v7
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache crates
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install Cargo Hack
+        run: cargo install cargo-hack
+
+      - name: Check feature combinations
+        run: cargo hack check --feature-powerset
+        env:
+          RUSTFLAGS: -Aunused -Dwarnings
+
+  no-std-portable-atomic:
+    name: Without atomics and std
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v7
+
+      # Use the same target platform as Bevy (Game Boy Advance).
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: thumbv6m-none-eabi
+
+      - name: Cache crates
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check compilation
+        run: cargo check --target thumbv6m-none-eabi --no-default-features --features client,server,bevy/critical-section
+
+  wasi:
+    name: WASI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v7
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-wasip1
+
+      - name: Cache crates
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install Wasmtime
+        uses: bytecodealliance/actions/wasmtime/setup@v1
+
+      # Doc tests and `scene` feature require `bevy_asset`, which pulls in `wasm-bindgen` that can't be used with Wasmtime.
+      - name: Test
+        run: cargo test --lib --tests --target wasm32-wasip1 --no-default-features --features=client,server
+        env:
+          CARGO_TARGET_WASM32_WASIP1_RUNNER: wasmtime
+
+  doctest:
+    name: Doctest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v7
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache crates
+        uses: Swatinem/rust-cache@v2
+
+      - name: Test doc
+        run: cargo test --workspace --all-features --doc
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      # We're running into a space limit,
+      # which causes `ld` to terminate with a bus error.
+      - name: Free disk space
+        uses: endersonmenezes/free-disk-space@v4
+        with:
+          remove_android: true
+          rm_cmd: "rmz"
+
+      - name: Clone repo
+        uses: actions/checkout@v7
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview
+
+      - name: Cache crates
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
+
+      - name: Install Nextest
+        uses: taiki-e/install-action@nextest
+
+      - name: Test
+        run: |
+            cargo llvm-cov nextest --release
+            cargo llvm-cov report --cobertura --output-path cobertura.xml
+
+      - name: Upload code coverage results
+        if: github.actor != 'dependabot[bot]'
+        uses: actions/upload-artifact@v7
+        with:
+          name: code-coverage-report
+          path: cobertura.xml
+
+  codecov:
+    name: Upload to Codecov
+    if: github.actor != 'dependabot[bot]'
+    needs:
+      [
+        typos,
+        format,
+        lint,
+        feature-combinations,
+        no-std-portable-atomic,
+        wasi,
+        doctest,
+        test,
+      ]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v7
+
+      - name: Download code coverage results
+        uses: actions/download-artifact@v8
+        with:
+          name: code-coverage-report
+          path: .
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: cobertura.xml
+          fail_ci_if_error: true
