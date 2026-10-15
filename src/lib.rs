@@ -129,7 +129,7 @@ pub struct GeoTilemap {
     ///     - '{x}' will be replaced by the value of the tile in x dimension
     ///     - '{y}' will be replaced by the value of the tile in y dimension
     ///     - '{z}' will be replaced by the value of the zoom level
-    /// For example https://tile.openstreetmap.org/{z}/{x}/{y}.png for osm tile data
+    /// For example `https://tile.openstreetmap.org/{z}/{x}/{y}.png` for osm tile data
     pub url: String,
     pub camera: Option<Entity>,
     pub zoom_level: u32,

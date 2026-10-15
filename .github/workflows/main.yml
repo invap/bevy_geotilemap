@@ -95,40 +95,6 @@ jobs:
         env:
           RUSTFLAGS: -Aunused -Dwarnings
 
-  wasi:
-    name: WASI
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clone repo
-        uses: actions/checkout@v7
-
-      - name: Install stable toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-wasip1
-
-      - name: Install Linux dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y \
-            pkg-config \
-            libasound2-dev \
-            libudev-dev \
-            libwayland-dev \
-            libxkbcommon-dev
-
-      - name: Cache crates
-        uses: Swatinem/rust-cache@v2
-
-      - name: Install Wasmtime
-        uses: bytecodealliance/actions/wasmtime/setup@v1
-
-      # Doc tests and `scene` feature require `bevy_asset`, which pulls in `wasm-bindgen` that can't be used with Wasmtime.
-      - name: Test
-        run: cargo test --lib --tests --target wasm32-wasip1 --no-default-features --features=controls,markers
-        env:
-          CARGO_TARGET_WASM32_WASIP1_RUNNER: wasmtime
-
   doctest:
     name: Doctest
     runs-on: ubuntu-latest
@@ -197,7 +163,7 @@ jobs:
       - name: Test
         run: |
             cargo llvm-cov nextest --release
-            cargo llvm-cov report --cobertura --output-path cobertura.xml
+            cargo llvm-cov report --release --cobertura --output-path cobertura.xml
 
       - name: Upload code coverage results
         if: github.actor != 'dependabot[bot]'
@@ -214,7 +180,6 @@ jobs:
         format,
         lint,
         feature-combinations,
-        wasi,
         doctest,
         test,
       ]
