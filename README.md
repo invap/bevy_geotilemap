@@ -1,4 +1,8 @@
 # Bevy GeoTilemap
+[![crates.io](https://img.shields.io/crates/v/bevy_geotilemap)](https://crates.io/crates/bevy_geotilemap)
+[![docs.rs](https://docs.rs/bevy_geotilemap/badge.svg)](https://docs.rs/bevy_geotilemap)
+[![license](https://img.shields.io/crates/l/bevy_geotilemap)](#license)
+[![codecov](https://codecov.io/gh/invap/bevy_geotilemap/graph/badge.svg)](https://codecov.io/gh/invap/bevy_geotilemap)
 
 GeoTilemap crate for the [Bevy game-engine](https://bevy.org/) to render slippy tile maps.
 
