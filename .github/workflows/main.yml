@@ -49,9 +49,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y \
-               libasound2-dev \
-               libwayland-dev \
-               pkg-config
+            pkg-config \
+            libasound2-dev \
+            libudev-dev \
+            libwayland-dev \
+            libxkbcommon-dev
 
       - name: Cache crates
         uses: Swatinem/rust-cache@v2
@@ -76,9 +78,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y \
-               libasound2-dev \
-               libwayland-dev \
-               pkg-config
+            pkg-config \
+            libasound2-dev \
+            libudev-dev \
+            libwayland-dev \
+            libxkbcommon-dev
 
       - name: Cache crates
         uses: Swatinem/rust-cache@v2
@@ -107,9 +111,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y \
-               libasound2-dev \
-               libwayland-dev \
-               pkg-config
+            pkg-config \
+            libasound2-dev \
+            libudev-dev \
+            libwayland-dev \
+            libxkbcommon-dev
 
       - name: Cache crates
         uses: Swatinem/rust-cache@v2
@@ -137,9 +143,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y \
-               libasound2-dev \
-               libwayland-dev \
-               pkg-config
+            pkg-config \
+            libasound2-dev \
+            libudev-dev \
+            libwayland-dev \
+            libxkbcommon-dev
 
       - name: Cache crates
         uses: Swatinem/rust-cache@v2
@@ -169,10 +177,13 @@ jobs:
 
       - name: Install Linux dependencies
         run: |
+          sudo apt-get update
           sudo apt-get install --no-install-recommends -y \
-               libasound2-dev \
-               libwayland-dev \
-               pkg-config
+            pkg-config \
+            libasound2-dev \
+            libudev-dev \
+            libwayland-dev \
+            libxkbcommon-dev
 
       - name: Cache crates
         uses: Swatinem/rust-cache@v2
