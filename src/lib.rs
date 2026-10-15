@@ -21,13 +21,12 @@ GeoTilemap crate for the [Bevy game-engine](https://bevy.org/) to render slippy 
 
 Add the GeoTilemapPlugin to your bevy app, spawn a camera and a GeoTilemap component with your desired tile provider
 
-```no_run
+```rust
 use bevy::prelude::*;
 use bevy_geotilemap::GeoTilemapPlugin;
 
 let mut app = App::new();
-app.add_plugins(DefaultPlugins)
-        .add_plugins(GeoTilemapPlugin::default());
+app.add_plugins(GeoTilemapPlugin::default());
 ```
 Then, just spawn an entity with the GeoTilemap component.
 Notice that GeoTilemap needs to know which camera is rendering it, so that it can load the tiles in its viewport.
