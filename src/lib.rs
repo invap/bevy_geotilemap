@@ -22,38 +22,54 @@ GeoTilemap crate for the [Bevy game-engine](https://bevy.org/) to render slippy 
 Add the GeoTilemapPlugin to your bevy app, spawn a camera and a GeoTilemap component with your desired tile provider
 
 ```rust
+use bevy::prelude::*;
+use bevy_geotilemap::GeoTilemapPlugin;
+
 let mut app = App::new();
 app.add_plugins(DefaultPlugins)
         .add_plugins(GeoTilemapPlugin::default());
 ```
+Then, just spawn an entity with the GeoTilemap component.
+Notice that GeoTilemap needs to know which camera is rendering it, so that it can load the tiles in its viewport.
 ```rust
-let camera = commands
-    .spawn((
-        Camera2d,
-        Camera { ..default() },
-    ))
-    .id();
+# use bevy::prelude::*;
+# use bevy_geotilemap::GeoTilemap;
+fn spawn_geotilemap(mut commands: Commands) {
+    let camera = commands
+        .spawn((
+            Camera2d,
+            Camera { ..default() }
+        )).id();
 
-commands.spawn((
-    GeoTilemap {
-        camera: Some(camera),
-        url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png".to_string(),
-        ..default()
-    },
-));
+    commands.spawn((
+        GeoTilemap {
+            camera: Some(camera),
+            url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png".to_string(),
+            ..default()
+        },
+    ));
+}
 ```
-
 If you want a controllable map, similar to your typical web app, you can add the component ControllableMap:
 
 ```rust
-commands.spawn((
-    GeoTilemap {
-        camera: Some(camera),
-        url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png".to_string(),
-        ..default()
-    },
-    ControllableMap::default()
-));
+# use bevy::prelude::*;
+# use bevy_geotilemap::{GeoTilemap, controls::ControllableMap};
+# fn spawn_geotilemap(mut commands: Commands) {
+#     let camera = commands
+#         .spawn((
+#             Camera2d,
+#             Camera { ..default() }
+#         )).id();
+    commands.spawn((
+        GeoTilemap {
+            camera: Some(camera),
+            url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png".to_string(),
+            ..default()
+        },
+        ControllableMap::default()
+    ));
+# }
 ```
 
 This will interact with your camera like you would expect: scroll to zoom, drag to move around.
@@ -61,21 +77,32 @@ This will interact with your camera like you would expect: scroll to zoom, drag 
 The feature "markers", provides a simple way of adding markers at a specified longitude and latitude, by spawning a MapMarker component as child of your GeoTilemap entity:
 
 ```rust
-commands.spawn((
-    GeoTilemap {
-        camera: Some(camera),
-        url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png".to_string(),
-        ..default()
-    },
-    children![
-        Sprite::from_image("my_pinpoint.png"),
-        MapMarker {
-            latitude: 33.821_056,
-            longitude: 71.945_98,
+# use bevy::prelude::*;
+# use bevy_geotilemap::{GeoTilemap, marker::MapMarker};
+# fn spawn_geotilemap(mut commands: Commands, asset_server: Res<AssetServer>) {
+#     let camera = commands
+#         .spawn((
+#             Camera2d,
+#             Camera { ..default() }
+#         )).id();
+    commands.spawn((
+        GeoTilemap {
+            camera: Some(camera),
+            url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png".to_string(),
+            ..default()
         },
-    ]
-));
-
+        children![
+            Sprite {
+                image: asset_server.load("pinpoint.png"),
+                ..default()
+            },
+            MapMarker {
+                latitude: 33.821_056,
+                longitude: 71.945_98,
+            },
+        ]
+    ));
+# }
 ```
 
 Checkout the examples to see different features available.
