@@ -54,7 +54,6 @@ impl Plugin for MapMarkerPlugin {
 ///
 /// commands.spawn((
 ///    Transform::from_xyz(0.0, 0.0, 1.0),
-///    RenderLayers::layer(1),
 ///    Mesh2d(meshes.add(Circle::new(mts_to_tiles(10_000.0, latitude)))),
 ///    MapMarker {
 ///        latitude: latitude,
@@ -109,7 +108,6 @@ fn update_map_markers(
 ///
 /// commands.spawn((
 ///    Transform::from_xyz(0.0, 0.0, 1.0),
-///    RenderLayers::layer(1),
 ///    Mesh2d(meshes.add(Circle::new(1.0))),
 ///    MapMarker {
 ///        latitude: latitude,
