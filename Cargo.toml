@@ -53,10 +53,6 @@ name = "place_marker"
 required-features = ["controls", "markers"]
 
 [[example]]
-name = "relative_marker"
-required-features = ["controls", "markers"]
-
-[[example]]
 name = "share_location_whatsapp"
 required-features = ["controls", "markers"]
 

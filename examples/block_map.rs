@@ -36,7 +36,10 @@ use bevy::{
     render::render_resource::{TextureDimension, TextureFormat, TextureUsages},
     sprite::Text2d,
     transform::components::Transform,
-    ui::{BackgroundColor, BorderRadius, Node, PositionType, percent, px, widget::ViewportNode},
+    ui::{
+        BackgroundColor, BorderRadius, Node, PositionType, percent, px,
+        widget::{Text, ViewportNode},
+    },
     ui_widgets::Button,
     utils::default,
 };
@@ -64,6 +67,16 @@ fn main() {
 
 fn spawn_map_app(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
     commands.spawn((Camera2d, Camera::default()));
+
+    commands.spawn((
+        Text::new("Click button to block interactions"),
+        Node {
+            position_type: PositionType::Absolute,
+            top: px(12),
+            left: px(12),
+            ..default()
+        },
+    ));
 
     // Set up an texture for the 2D camera to render to.
     // The size of the texture will be based on the viewport's ui size.

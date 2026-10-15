@@ -19,8 +19,13 @@ use bevy::{
     DefaultPlugins,
     app::{App, Startup},
     asset::AssetServer,
-    camera::{Camera, Camera2d, OrthographicProjection, Projection, ScalingMode},
-    ecs::system::{Commands, Res},
+    camera::{
+        Camera, Camera2d, OrthographicProjection, Projection, ScalingMode, visibility::Visibility,
+    },
+    ecs::{
+        children,
+        system::{Commands, Res},
+    },
     math::Vec2,
     sprite::Sprite,
     transform::components::Transform,
@@ -82,11 +87,16 @@ fn spawn_map_app(mut commands: Commands, asset_server: Res<AssetServer>) {
             ControllableMap::default(),
         ))
         .with_child((
-            Sprite {
-                image: asset_server.load("pinpoint_red_fill.png"),
-                custom_size: Some(Vec2::new(marker_size, marker_size)),
-                ..default()
-            },
+            children![(
+                Visibility::Inherited,
+                Sprite {
+                    image: asset_server.load("pinpoint.png"),
+                    custom_size: Some(Vec2::new(marker_size, marker_size)),
+                    ..default()
+                },
+                Transform::from_xyz(0.0, marker_size / 2.0, 0.0)
+            )],
+            Visibility::Inherited,
             MapMarker {
                 latitude: LAT_DEG + 1e-3,
                 longitude: LON_DEG + 1e-3,

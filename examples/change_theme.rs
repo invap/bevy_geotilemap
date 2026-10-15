@@ -36,7 +36,10 @@ use bevy::{
     sprite::Text2d,
     text::TextColor,
     transform::components::Transform,
-    ui::{BackgroundColor, BorderRadius, Node, PositionType, percent, px, widget::ViewportNode},
+    ui::{
+        BackgroundColor, BorderRadius, Node, PositionType, percent, px,
+        widget::{Text, ViewportNode},
+    },
     ui_widgets::Button,
     utils::default,
 };
@@ -67,6 +70,16 @@ fn main() {
 
 fn spawn_map_app(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
     commands.spawn((Camera2d, Camera::default()));
+
+    commands.spawn((
+        Text::new("Click button to change map layer"),
+        Node {
+            position_type: PositionType::Absolute,
+            top: px(12),
+            left: px(12),
+            ..default()
+        },
+    ));
 
     // Set up an texture for the 2D camera to render to.
     // The size of the texture will be based on the viewport's ui size.
@@ -148,7 +161,7 @@ fn spawn_map_app(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
                     Button,
                     ThemeMap(geotilemap),
                     BackgroundColor(Color::srgb(0.1, 0.1, 0.1)),
-                    Text2d("DARK MODE".to_string()),
+                    Text2d("SAT MODE".to_string()),
                     TextColor(Color::srgb(0.9, 0.9, 0.9)),
                 ))
                 .observe(change_theme);

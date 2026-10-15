@@ -24,7 +24,7 @@ use std::time::Duration;
 use arboard::Clipboard;
 use bevy::{
     DefaultPlugins,
-    app::{App, PostUpdate, Startup},
+    app::{App, Startup},
     asset::{AssetServer, Assets, RenderAssetUsages},
     camera::{
         Camera, Camera2d, OrthographicProjection, Projection, RenderTarget, ScalingMode,
@@ -54,7 +54,8 @@ use bevy::{
     transform::components::{GlobalTransform, Transform},
     ui::{
         BackgroundColor, BorderColor, BorderRadius, BoxShadow, ComputedNode, Display,
-        FlexDirection, Node, PositionType, ShadowStyle, UiRect, percent, px, widget::ViewportNode,
+        FlexDirection, Node, PositionType, ShadowStyle, UiRect, percent, px,
+        widget::{Text, ViewportNode},
     },
     utils::default,
 };
@@ -62,7 +63,7 @@ use bevy_geotilemap::{
     GeoTilemap, GeoTilemapPlugin,
     controls::ControllableMap,
     geo_coords::{lat_lon_to_world, mts_to_tiles, world_to_lat_lon},
-    marker::MapMarker,
+    marker::{MapMarker, RelativeMarker},
 };
 use urlencoding::encode;
 
@@ -92,8 +93,7 @@ fn main() {
         .insert_resource(SelectedLocation(None))
         .add_plugins(DefaultPlugins)
         .add_plugins(GeoTilemapPlugin::default())
-        .add_systems(Startup, spawn_map_app)
-        .add_systems(PostUpdate, rescale_relative_markers);
+        .add_systems(Startup, spawn_map_app);
 
     app.run();
 }
@@ -107,6 +107,16 @@ fn spawn_map_app(
     let initial_scale = mts_to_tiles(3_000.0, LAT_DEG, GeoTilemap::default_size());
 
     commands.spawn((Camera2d, Camera::default()));
+
+    commands.spawn((
+        Text::new("Right click to open menu"),
+        Node {
+            position_type: PositionType::Absolute,
+            top: px(12),
+            left: px(12),
+            ..default()
+        },
+    ));
 
     // Set up an texture for the 2D camera to render to.
     // The size of the texture will be based on the viewport's ui size.
@@ -186,48 +196,29 @@ fn spawn_map_app(
             RenderLayers::layer(1),
         ))
         .with_child((
-            Sprite {
-                image: asset_server.load("pinpoint_red_fill.png"),
-                custom_size: Some(Vec2::new(0.0000001, 0.0000001)),
-                ..default()
-            },
+            children![(
+                Visibility::Visible,
+                Sprite {
+                    image: asset_server.load("pinpoint.png"),
+                    custom_size: Some(Vec2::new(1.0, 1.0)),
+                    ..default()
+                },
+                Transform::from_xyz(0.0, 0.5, 0.0)
+            )],
             Visibility::Hidden,
             MapMarker {
                 latitude: 0.0,
                 longitude: 0.0,
             },
             Transform::from_xyz(0.0, 0.0, 2.0),
-            ResizableMarker {
+            RelativeMarker {
                 scale: Vec2::new(0.05, 0.05),
+                ..default()
             },
         ))
         .observe(place_marker)
         .observe(hide_rightclick_menu_press)
         .observe(hide_rightclick_menu_scroll);
-}
-
-pub fn rescale_relative_markers(
-    cameras: Query<&Projection>,
-    maps: Query<&GeoTilemap>,
-    mut markers: Query<(&mut Sprite, &ResizableMarker)>,
-) {
-    for map in maps {
-        if let Some(map_camera) = map.camera
-            && let Ok(projection) = cameras.get(map_camera)
-            && let Projection::Orthographic(orthographic_projection) = projection
-        {
-            let camera_area = orthographic_projection.area;
-
-            for (mut sprite, marker) in &mut markers {
-                let camera_width = camera_area.width();
-
-                sprite.custom_size = Some(Vec2 {
-                    x: camera_width * marker.scale.x,
-                    y: camera_width * marker.scale.x,
-                });
-            }
-        }
-    }
 }
 
 pub fn place_marker(

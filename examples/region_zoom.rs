@@ -47,6 +47,7 @@ use bevy::{
     shape::Polyline2d,
     sprite_render::{ColorMaterial, MeshMaterial2d},
     transform::components::{GlobalTransform, Transform},
+    ui::{Node, PositionType, px, widget::Text},
     utils::default,
 };
 use bevy_geotilemap::{
@@ -103,6 +104,19 @@ fn spawn_map_app(mut commands: Commands) {
             RenderLayers::layer(1),
         ))
         .id();
+
+    commands.spawn((
+        Text::new(
+            "Click and drag Middle button to zoom in region. \n\
+            Press Ctrl and drag Middle button to zoom out region.",
+        ),
+        Node {
+            position_type: PositionType::Absolute,
+            top: px(12),
+            left: px(12),
+            ..default()
+        },
+    ));
 
     commands
         .spawn((

@@ -19,11 +19,13 @@
 //! Right click to spawn a marker at cursor position.
 use bevy::{
     DefaultPlugins,
-    app::{App, PostUpdate, Startup},
+    app::{App, Startup},
     asset::AssetServer,
-    camera::{Camera, Camera2d, OrthographicProjection, Projection, ScalingMode},
+    camera::{
+        Camera, Camera2d, OrthographicProjection, Projection, ScalingMode, visibility::Visibility,
+    },
     ecs::{
-        component::Component,
+        children,
         entity::{ContainsEntity, Entity},
         observer::On,
         system::{Commands, Query, Res, Single},
@@ -32,19 +34,15 @@ use bevy::{
     picking::{events::PointerClick, pointer::PointerButton},
     sprite::Sprite,
     transform::components::{GlobalTransform, Transform},
+    ui::{Node, PositionType, px, widget::Text},
     utils::default,
 };
 use bevy_geotilemap::{
     GeoTilemap, GeoTilemapPlugin,
     controls::ControllableMap,
     geo_coords::{lat_lon_to_world, mts_to_tiles, world_to_lat_lon},
-    marker::MapMarker,
+    marker::{MapMarker, RelativeMarker},
 };
-
-#[derive(Component)]
-pub struct ResizableMarker {
-    pub scale: Vec2,
-}
 
 const LAT_DEG: f32 = -41.124_397;
 const LON_DEG: f32 = -71.242_38;
@@ -54,8 +52,7 @@ fn main() {
 
     app.add_plugins(DefaultPlugins)
         .add_plugins(GeoTilemapPlugin::default())
-        .add_systems(Startup, spawn_map_app)
-        .add_systems(PostUpdate, rescale_relative_markers);
+        .add_systems(Startup, spawn_map_app);
 
     app.run();
 }
@@ -86,6 +83,16 @@ fn spawn_map_app(mut commands: Commands) {
         ))
         .id();
 
+    commands.spawn((
+        Text::new("Right click to place marker"),
+        Node {
+            position_type: PositionType::Absolute,
+            top: px(12),
+            left: px(12),
+            ..default()
+        },
+    ));
+
     commands
         .spawn((
             GeoTilemap {
@@ -96,30 +103,6 @@ fn spawn_map_app(mut commands: Commands) {
             ControllableMap::default(),
         ))
         .observe(place_marker);
-}
-
-pub fn rescale_relative_markers(
-    cameras: Query<&Projection>,
-    maps: Query<&GeoTilemap>,
-    mut markers: Query<(&mut Sprite, &ResizableMarker)>,
-) {
-    for map in maps {
-        if let Some(map_camera) = map.camera
-            && let Ok(projection) = cameras.get(map_camera)
-            && let Projection::Orthographic(orthographic_projection) = projection
-        {
-            let camera_area = orthographic_projection.area;
-
-            for (mut sprite, marker) in &mut markers {
-                let camera_width = camera_area.width();
-
-                sprite.custom_size = Some(Vec2 {
-                    x: camera_width * marker.scale.x,
-                    y: camera_width * marker.scale.x,
-                });
-            }
-        }
-    }
 }
 
 pub fn place_marker(
@@ -138,17 +121,24 @@ pub fn place_marker(
         let degrees = world_to_lat_lon(location, GeoTilemap::default_size());
 
         commands.entity(geotilemap.0.entity()).with_child((
-            Sprite {
-                image: asset_server.load("pinpoint_red_fill.png"),
-                ..default()
-            },
+            children![(
+                Visibility::Inherited,
+                Sprite {
+                    image: asset_server.load("pinpoint.png"),
+                    custom_size: Some(Vec2::new(1.0, 1.0)),
+                    ..default()
+                },
+                Transform::from_xyz(0.0, 0.5, 0.0)
+            )],
             MapMarker {
                 latitude: degrees.x,
                 longitude: degrees.y,
             },
+            Visibility::Visible,
             Transform::from_xyz(0.0, 0.0, 1.0),
-            ResizableMarker {
-                scale: Vec2::new(0.2, 0.2),
+            RelativeMarker {
+                scale: Vec2::new(0.05, 0.05),
+                ..default()
             },
         ));
     }
