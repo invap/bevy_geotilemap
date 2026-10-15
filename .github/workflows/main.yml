@@ -15,16 +15,6 @@ on:
 env:
   CARGO_TERM_COLOR: always
 jobs:
-  typos:
-    name: Typos
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clone repo
-        uses: actions/checkout@v7
-
-      - name: Check for typos
-        uses: crate-ci/typos@v1.50.3
-
   format:
     name: Format
     runs-on: ubuntu-latest

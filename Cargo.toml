@@ -9,10 +9,10 @@ readme = "README.md"
 
 [dependencies]
 bevy = { version = "0.20", default-features = false, features = [
-    "2d",
-    "jpeg",
-    "https",
-    "http",
+  "2d",
+  "jpeg",
+  "https",
+  "http",
 ] }
 
 [features]
