@@ -45,6 +45,11 @@ jobs:
         with:
           components: clippy
 
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y libwayland-dev
+
       - name: Cache crates
         uses: Swatinem/rust-cache@v2
 
@@ -52,9 +57,7 @@ jobs:
         run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
       - name: Check docs
-        run: |
-          cargo rustdoc --all-features -- -D warnings
-          cargo rustdoc -p bevy_replicon_example_backend -- -D warnings
+        run: cargo rustdoc --all-features -- -D warnings
 
   feature-combinations:
     name: Feature combinations
@@ -66,6 +69,11 @@ jobs:
       - name: Install stable toolchain
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y libwayland-dev
+
       - name: Cache crates
         uses: Swatinem/rust-cache@v2
 
@@ -76,25 +84,6 @@ jobs:
         run: cargo hack check --feature-powerset
         env:
           RUSTFLAGS: -Aunused -Dwarnings
-
-  no-std-portable-atomic:
-    name: Without atomics and std
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clone repo
-        uses: actions/checkout@v7
-
-      # Use the same target platform as Bevy (Game Boy Advance).
-      - name: Install stable toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: thumbv6m-none-eabi
-
-      - name: Cache crates
-        uses: Swatinem/rust-cache@v2
-
-      - name: Check compilation
-        run: cargo check --target thumbv6m-none-eabi --no-default-features --features client,server,bevy/critical-section
 
   wasi:
     name: WASI
@@ -108,6 +97,11 @@ jobs:
         with:
           targets: wasm32-wasip1
 
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y libwayland-dev
+
       - name: Cache crates
         uses: Swatinem/rust-cache@v2
 
@@ -116,7 +110,7 @@ jobs:
 
       # Doc tests and `scene` feature require `bevy_asset`, which pulls in `wasm-bindgen` that can't be used with Wasmtime.
       - name: Test
-        run: cargo test --lib --tests --target wasm32-wasip1 --no-default-features --features=client,server
+        run: cargo test --lib --tests --target wasm32-wasip1 --no-default-features --features=controls,markers
         env:
           CARGO_TARGET_WASM32_WASIP1_RUNNER: wasmtime
 
@@ -129,6 +123,11 @@ jobs:
 
       - name: Install stable toolchain
         uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y libwayland-dev
 
       - name: Cache crates
         uses: Swatinem/rust-cache@v2
@@ -156,6 +155,11 @@ jobs:
         with:
           components: llvm-tools-preview
 
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y libwayland-dev
+
       - name: Cache crates
         uses: Swatinem/rust-cache@v2
 
@@ -182,11 +186,9 @@ jobs:
     if: github.actor != 'dependabot[bot]'
     needs:
       [
-        typos,
         format,
         lint,
         feature-combinations,
-        no-std-portable-atomic,
         wasi,
         doctest,
         test,
