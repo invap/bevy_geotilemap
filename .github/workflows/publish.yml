@@ -15,6 +15,16 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
 
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            pkg-config \
+            libasound2-dev \
+            libudev-dev \
+            libwayland-dev \
+            libxkbcommon-dev
+            
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
